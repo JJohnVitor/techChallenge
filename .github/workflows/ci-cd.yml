@@ -28,7 +28,7 @@ jobs:
         run: npm test
 
       - name: Construir imagem Docker
-        run: docker build -t meu-app .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/meu-app .
 
   deploy:
     needs: build
@@ -43,9 +43,9 @@ jobs:
 
       - name: Construir e enviar imagem para Docker Hub
         run: |
-          docker build -t meu-usuario/meu-app .
-          docker tag meu-usuario/meu-app meu-usuario/meu-app:latest
-          docker push meu-usuario/meu-app:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/meu-app .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/meu-app ${{ secrets.DOCKER_USERNAME }}/meu-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/meu-app:latest
 
       - name: Deploy no Servidor (exemplo com SSH)
         uses: appleboy/ssh-action@v0.1.6
@@ -54,7 +54,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            docker pull meu-usuario/meu-app:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/meu-app:latest
             docker stop meu-app || true
             docker rm meu-app || true
-            docker run -d --name meu-app -p 3000:3000 meu-usuario/meu-app:latest
+            docker run -d --name meu-app -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/meu-app:latest
